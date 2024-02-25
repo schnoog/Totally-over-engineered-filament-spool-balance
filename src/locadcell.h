@@ -173,7 +173,8 @@ void CalibrateBalance(int BalanceNo){
 
 
 
-
+int WaitCycles = 0;
+int CycleDelay = 5;
 void ReadLoadCells()
 {
   static boolean newDataReady[] = {0,0,0,0};
@@ -181,10 +182,17 @@ void ReadLoadCells()
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         if (loadCells[i]->update()) newDataReady[i] = true;
         if(newDataReady[i]){
+            
+            if(WaitCycles < CycleDelay){
+                WaitCycles++;
+            }else{
+            
             val = loadCells[i]->getData();
             Weights[i] = val;
             WeightInG[i] = round(val); 
             newDataReady[i] = 0;
+
+            }
         }
     }  
 }
@@ -193,8 +201,10 @@ void ReadLoadCells()
 void SetupBalances(){
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         loadCells[i] = new HX711_ADC(HX_DAT[i], HX_SCK[i]); //  LoadCell(HX_DAT[i], HX_SCK[i]);
-        loadCells[i]->setSamplesInUse(128);
+        loadCells[i]->setSamplesInUse(1);
         loadCells[i]->begin();
+        Weights[i] = 0;
+        WeightInG[i] = 0;
     }
     LoadTaras();
     LoadCalibrations();  

@@ -8,13 +8,11 @@
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+#include <remotework.h>
 
 
 
-
-
-
-void callback(char *topic, byte *payload, unsigned int length) {
+void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
     Serial.println(topic);
     Serial.print("Message:");
@@ -43,7 +41,11 @@ void mqtt_setup(){
     }
     // Publish and subscribe
     client.publish(topic, "Hi, I'm ESP32 ^^");
-    client.subscribe(topic);
+    char subtopic[50]; // Adjust the size as needed
+    snprintf(subtopic, sizeof(subtopic), "%s/command/", topic);
+
+
+    client.subscribe(subtopic);
 }
 
 void wifi_setup(){

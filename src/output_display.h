@@ -1,5 +1,5 @@
 
-
+int OldVal[NUM_LOAD_CELLS];
 
 void PaintWights(){
   display.setRotation(0);
@@ -14,31 +14,38 @@ void PaintWights(){
   int leftOffSet = 0;
   int TopOffSet = 180;
   int BalancePart = 100;
-  
-  for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
-    leftOffSet = i * BalancePart;
-
-    display.setCursor(leftOffSet,TopOffSet);
-
-//    display.print("Balance ");
-//    display.println(i+1);
-//    display.println("--------------------------------");
-    display.print(WeightInG[i]);
-    display.print(" g");
-//   display.println("--------------------------------");
-//   display.println("--------------------------------");
-
-Serial.print("Balance ");
-Serial.println(i+1);
-Serial.println("--------------------------------");
-Serial.println(WeightInG[i]);
-Serial.println("--------------------------------");
-Serial.println("--------------------------------");
-
+  bool bolRun = false;
+  for (int i = 0; i < NUM_LOAD_CELLS; ++i) {  
+      if(WeightInG[i] != OldVal[i]) bolRun = true;
   }
 
+  if(bolRun){
+    for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
+      leftOffSet = i * BalancePart;
 
-  display.display(true); // full update
+      display.setCursor(leftOffSet,TopOffSet);
+
+  //    display.print("Balance ");
+  //    display.println(i+1);
+  //    display.println("--------------------------------");
+      display.print(WeightInG[i]);
+      display.print(" g");
+      OldVal[i] = WeightInG[i];
+  //   display.println("--------------------------------");
+  //   display.println("--------------------------------");
+
+  Serial.print("Balance ");
+  Serial.println(i+1);
+  Serial.println("--------------------------------");
+  Serial.println(WeightInG[i]);
+  Serial.println("--------------------------------");
+  Serial.println("--------------------------------");
+
+    }
+
+
+    display.display(true); // full update
+  }
 }
 
 

@@ -37,13 +37,14 @@ void loop()
 {
   wifi_loop();
   sCmd.readSerial(); 
-  const int serialPrintInterval = 500; //increase value to slow down serial print activity
+  PaintWights();
+  const int serialPrintInterval = 5000; //increase value to slow down serial print activity
   // get smoothed value from the dataset:
   ReadLoadCells();
     if (millis() > t + serialPrintInterval) {
       t = millis();
       
-      PaintWights();
+      
       PublishWeights();
     }
   
