@@ -1,8 +1,9 @@
 #pragma once
 #include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
-
+//#include <WiFiClient.h>
+//#include <WebServer.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
 
 #include <PubSubClient.h>
@@ -15,7 +16,8 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 #include <remotework.h>
 
-WebServer server(80);
+//WebServer server(80);
+AsyncWebServer server(80);
 
 void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
@@ -59,9 +61,19 @@ void onOTAEnd(bool success) {
 
 
 void ota_setup(){
-    server.on("/", []() {
-        server.send(200, "text/plain", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
-    });
+//AsyncWebServerRequest 
+//    server.on("/", []() {
+//        server.send(200, "text/plain", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
+//    });
+
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html; charset=utf-8", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
+  });
+
+  server.on("/hi", HTTP_GET, [](AsyncWebServerRequest *request) {
+    request->send(200, "text/html; charset=utf-8", "HUHU<hr>! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
+  });
+
 
   ElegantOTA.begin(&server);    // Start ElegantOTA
   ElegantOTA.onStart(onOTAStart);
@@ -72,7 +84,7 @@ void ota_setup(){
 }
 
 void ota_loop(){
-    server.handleClient();
+    //server.handleClient();
     ElegantOTA.loop();
 }
 
