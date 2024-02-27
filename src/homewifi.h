@@ -1,5 +1,10 @@
 #pragma once
 #include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+
+#include <ElegantOTA.h>
+
 #include <PubSubClient.h>
 
 
@@ -10,7 +15,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 #include <remotework.h>
 
-
+WebServer server(80);
 
 void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
@@ -23,6 +28,53 @@ void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.println("-----------------------");
 }
 
+
+
+unsigned long ota_progress_millis = 0;
+
+void onOTAStart() {
+  // Log when OTA has started
+  Serial.println("OTA update started!");
+  // <Add your own code here>
+}
+
+void onOTAProgress(size_t current, size_t final) {
+  // Log every 1 second
+  if (millis() - ota_progress_millis > 1000) {
+    ota_progress_millis = millis();
+    Serial.printf("OTA Progress Current: %u bytes, Final: %u bytes\n", current, final);
+  }
+}
+
+void onOTAEnd(bool success) {
+  // Log when OTA has finished
+  if (success) {
+    Serial.println("OTA update finished successfully!");
+  } else {
+    Serial.println("There was an error during OTA update!");
+  }
+  // <Add your own code here>
+}
+
+
+
+void ota_setup(){
+    server.on("/", []() {
+        server.send(200, "text/plain", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
+    });
+
+  ElegantOTA.begin(&server);    // Start ElegantOTA
+  ElegantOTA.onStart(onOTAStart);
+  ElegantOTA.onProgress(onOTAProgress);
+  ElegantOTA.onEnd(onOTAEnd);
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void ota_loop(){
+    server.handleClient();
+    ElegantOTA.loop();
+}
 
 void mqtt_setup(){
     client.setServer(mqtt_broker, mqtt_port);
@@ -61,10 +113,12 @@ void wifi_setup(){
     Serial.println("\nConnected to the WiFi network");
     Serial.print("Local ESP32 IP: ");
     Serial.println(WiFi.localIP());
+    ota_setup();
     mqtt_setup();
 
 }
 
 void wifi_loop(){
+    ota_loop();
     client.loop();
 }
