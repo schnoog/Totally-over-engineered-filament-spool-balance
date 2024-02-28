@@ -10,10 +10,17 @@
 //const int HX_DAT[] = {2, 3, 4, 5};  // Example pins, adjust as per your setup
 //const int HX_SCK[] = {6, 7, 8, 9};  // Example pins, adjust as per your setup
 
-const int HX_DAT[] = {45};  // Example pins, adjust as per your setup
-const int HX_SCK[] = {48};  // Example pins, adjust as per your setup
-const int NUM_LOAD_CELLS = 1;
-//const int NUM_LOAD_CELLS = 4;
+//const int HX_DAT[] = {45};  // Example pins, adjust as per your setup
+//const int HX_SCK[] = {48};  // Example pins, adjust as per your setup
+
+const int HX_DAT[] = {5,7,16,18};  // Example pins, adjust as per your setup
+const int HX_SCK[] = {4,6,15,17};  // Example pins, adjust as per your setup
+
+//const int HX_SCK[] = {4,6,15,17};  // Example pins, adjust as per your setup
+//const int HX_DAT[] = {5,7,16,18};  // Example pins, adjust as per your setup
+
+//const int NUM_LOAD_CELLS = 1;
+const int NUM_LOAD_CELLS = 4;
 
 
 
@@ -30,6 +37,9 @@ float Weight3 = 0;
 
 float Weights[NUM_LOAD_CELLS];
 int WeightInG[NUM_LOAD_CELLS];
+float TaraOffSet[NUM_LOAD_CELLS];
+float ConvFactor[NUM_LOAD_CELLS];
+
 
 #define EEPROM_ADDR_WEIGHT1 0
 #define EEPROM_ADDR_WEIGHT2 sizeof(float)
@@ -66,7 +76,9 @@ void LoadTaras(){
     long _offset = 0;
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         int AddTara = (i + 4) * sizeof(float);
+        
         EEPROM.get(AddTara,_offset);
+        TaraOffSet[i] = _offset;
         if(_offset != 0) loadCells[i]->setTareOffset(_offset);
          _offset = 0;
     }
@@ -78,6 +90,7 @@ void LoadCalibrations(){
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         AddCalOff = (i + 8) * sizeof(float);
         EEPROM.get(AddCalOff, newCalibrationValue);
+        ConvFactor[i] = newCalibrationValue;
         if(newCalibrationValue < 1) newCalibrationValue = 0;
         loadCells[i]->setCalFactor(newCalibrationValue);
     }
@@ -198,14 +211,33 @@ void ReadLoadCells()
 }
 
 
+
+
 void SetupBalances(){
+  unsigned long stabilizingtime = 2000; // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
+  boolean _tare = false; //set this to false if you don't want tare to be performed in the next step
+
+
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         loadCells[i] = new HX711_ADC(HX_DAT[i], HX_SCK[i]); //  LoadCell(HX_DAT[i], HX_SCK[i]);
-        loadCells[i]->setSamplesInUse(1);
+        loadCells[i]->setSamplesInUse(2);
+        loadCells[i]->setGain(128);
         loadCells[i]->begin();
+
+        if (loadCells[i]->getTareTimeoutFlag()) {
+            Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
+            while (1);
+        }
+        loadCells[i]->setCalFactor(-656.51);
+
+
+        if(i == 0) loadCells[0]->setCalFactor(-656.51);
+        if( i == 1) loadCells[1]->setCalFactor(-761.31); 
+        ConvFactor[i] = loadCells[i]->getCalFactor();
+
         Weights[i] = 0;
         WeightInG[i] = 0;
     }
     LoadTaras();
-    LoadCalibrations();  
+    //LoadCalibrations();  
 }

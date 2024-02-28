@@ -1,16 +1,28 @@
 #include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 
+#define USE_EPAPER
+
+
+
 #include <serial_cmds.h>
 #include <homewifi.h>
-#include <displayinit.h>
-#include <displaydemo.h>
+
+#ifdef USE_EPAPER
+  #include <displayinit.h>
+  #include <displaydemo.h>
+#endif
+
 #include <locadcell.h>
-#include <output_display.h>
+#include <humidity.h>
+
+#ifdef USE_EPAPER
+  #include <output_display.h>
+#endif
+
+
 #include <neoled.h>
-#include <remotework.h>
-
-
+ #include <remotework.h>
 
 
 
@@ -27,23 +39,39 @@ void setup()
   wifi_setup();
   SetupBalances();
   Serial.println();
+#ifdef USE_EPAPER
   ePaper_setup();
+#endif
   SerialCommandSetup();
   Serial.println("setup done");
+#ifdef USE_EPAPER
   InfoPrintLn("Setup done");
+#endif
+  bme_setup();
+
+
+PaintDev();
+}
+
+void loopx(){
+  //scan();
 }
 
 void loop()
 {
   wifi_loop();
-  sCmd.readSerial(); 
-  PaintWights();
-  const int serialPrintInterval = 5000; //increase value to slow down serial print activity
+  sCmd.readSerial();
+  bme_loop(); 
+#ifdef USE_EPAPER
+  PaintWeights();
+#endif
+  const int serialPrintInterval = 1500; //increase value to slow down serial print activity
   // get smoothed value from the dataset:
   ReadLoadCells();
     if (millis() > t + serialPrintInterval) {
       t = millis();
-      
+        bme_loop(); 
+
       
       PublishWeights();
     }

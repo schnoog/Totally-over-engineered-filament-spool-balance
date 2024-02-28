@@ -1,15 +1,22 @@
 #pragma once
 
 #include <homewifi.h>
+#include <humidity.h>
 //const char *topic = "3d/filamentbalance";
+
+int SubCNT = 0;
+int SendEach = 20;
+
 void PublishWeights(){
     String topicWithWeight;
+    Serial.print("Publishing (1/2/3/4): ");
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
 
         // Convert the integer value to a string
         char weightAsString[10]; // Adjust the size as needed
         snprintf(weightAsString, sizeof(weightAsString), "%d", WeightInG[i]);
-        
+        Serial.print(WeightInG[i]);
+        Serial.print(" ");
         // Construct the topic with "/weight/" + current index i
         char topicWithWeight[50]; // Adjust the size as needed
         snprintf(topicWithWeight, sizeof(topicWithWeight), "%s/weight/%d", topic, i + 1);
@@ -19,10 +26,31 @@ void PublishWeights(){
         snprintf(message, sizeof(message), "%s: %s", topicWithWeight, weightAsString);
         
         // Publish using the constructed message
-        client.publish(topicWithWeight, message);
+        SubCNT++;
+        if(SubCNT == SendEach){
+            SubCNT = 0;
+            client.publish(topicWithWeight, message);
+        }
+        
 
+        char tempStr[10]; // Allocate space for the temperature string
+        char humStr[10];  // Allocate space for the humidity string
+        dtostrf(Temperature, 4, 1, tempStr); // Convert temperature float to string
+        dtostrf(Humidity, 4, 1, humStr);     // Convert humidity float to string
+        int topicLength = strlen(topic);
+        int appendLength = strlen("/temperature");
+        char *newTopicT = new char[topicLength + appendLength + 1];
+        strcpy(newTopicT, topic);
+        strcat(newTopicT, "/temperature");
+        appendLength = strlen("/humidity");
+        char *newTopicH = new char[topicLength + appendLength + 1];
+        strcpy(newTopicH, topic);
+        strcat(newTopicH, "/humidity");        
+        client.publish(newTopicT,tempStr);
+        client.publish(newTopicH,humStr);
 
     }
+    Serial.println("");
 }
 
 String commandCMD;

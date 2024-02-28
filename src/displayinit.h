@@ -4,11 +4,11 @@
 #define ENABLE_GxEPD2_GFX 0
 #include <GxEPD2_BW.h>
 #include <Fonts/FreeMonoBold9pt7b.h>
-
+#include <Fonts/FreeMonoBold12pt7b.h>
 #include <Fonts/FreeMonoBold18pt7b.h>
 
 #include <Fonts/FreeMonoBold24pt7b.h>
-
+#include <Fonts/FreeMono9pt7b.h>
 // select the display class (only one), matching the kind of display panel
 #define GxEPD2_DISPLAY_CLASS GxEPD2_BW
 #define GxEPD2_DRIVER_CLASS GxEPD2_420     // GDEW042T2   400x300, UC8176 (IL0398), (WFT042CZ15)
@@ -22,10 +22,14 @@
 #define IS_GxEPD2_BW(x) IS_GxEPD(GxEPD2_BW_IS_, x)
 #define MAX_DISPLAY_BUFFER_SIZE 65536ul // e.g.
 #define MAX_HEIGHT(EPD) (EPD::HEIGHT <= MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8) ? EPD::HEIGHT : MAX_DISPLAY_BUFFER_SIZE / (EPD::WIDTH / 8))
-GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=*/ 15, /*DC=*/ 9, /*RST=*/ 10, /*BUSY=*/ 11));
+GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=*/ 3, /*DC=*/ 9, /*RST=*/ 10, /*BUSY=*/ 11));
+//GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=*/ 15, /*DC=*/ 9, /*RST=*/ 10, /*BUSY=*/ 11));
+
+
 
 #include "bitmaps/Bitmaps400x300.h" // 4.2"  b/w
 #if defined(ESP32) && defined(USE_HSPI_FOR_EPD)
+
 SPIClass hspi(HSPI);
 #endif
 
