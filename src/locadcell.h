@@ -13,8 +13,8 @@
 //const int HX_DAT[] = {45};  // Example pins, adjust as per your setup
 //const int HX_SCK[] = {48};  // Example pins, adjust as per your setup
 
-const int HX_DAT[] = {5,7,16,18};  // Example pins, adjust as per your setup
-const int HX_SCK[] = {4,6,15,17};  // Example pins, adjust as per your setup
+const int HX_DAT[] = {7,5,16,18};  // Example pins, adjust as per your setup
+const int HX_SCK[] = {6,4,15,17};  // Example pins, adjust as per your setup
 
 //const int HX_SCK[] = {4,6,15,17};  // Example pins, adjust as per your setup
 //const int HX_DAT[] = {5,7,16,18};  // Example pins, adjust as per your setup
@@ -67,6 +67,10 @@ void TaraBalance( int BalanceNo){
     loadCells[BalanceNo -1]->tare();
     _offset = loadCells[BalanceNo -1]->getTareOffset();
     int AddTara = (BalanceNo + 3) * sizeof(float);
+    Serial.print("Tara value of Balance ");
+    Serial.print(BalanceNo);
+    Serial.print(" : ");
+    Serial.println(_offset);
     EEPROM.put(AddTara, _offset);
     EEPROM.commit();
     loadCells[BalanceNo -1]->setTareOffset(_offset);
@@ -79,6 +83,10 @@ void LoadTaras(){
         
         EEPROM.get(AddTara,_offset);
         TaraOffSet[i] = _offset;
+        Serial.print("Zeropoint ");
+        Serial.print(i + 1);
+        Serial.print(" : ");
+        Serial.println(_offset);
         if(_offset != 0) loadCells[i]->setTareOffset(_offset);
          _offset = 0;
     }
@@ -90,6 +98,10 @@ void LoadCalibrations(){
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         AddCalOff = (i + 8) * sizeof(float);
         EEPROM.get(AddCalOff, newCalibrationValue);
+        Serial.print("Load Cal ");
+        Serial.print(i +1);
+        Serial.print(" : ");
+        Serial.println(newCalibrationValue);
         ConvFactor[i] = newCalibrationValue;
         if(newCalibrationValue < 1) newCalibrationValue = 0;
         loadCells[i]->setCalFactor(newCalibrationValue);
@@ -98,9 +110,10 @@ void LoadCalibrations(){
 
 
 void CalibrateBalance(int BalanceNo){
-    int AddCalOff = (BalanceNo + 7) * sizeof(float);
+    
     
     int Chan = BalanceNo - 1;
+    int AddCalOff = (Chan + 8) * sizeof(float);
     TaraBalance(BalanceNo);
     loadCells[Chan]->setCalFactor(1.0); 
     while (!loadCells[Chan]->update());
@@ -151,7 +164,7 @@ void CalibrateBalance(int BalanceNo){
     Serial.print(newCalibrationValue);
     Serial.println(", use this as calibration value (calFactor) in your project sketch.");
     Serial.print("Save this value to EEPROM adress ");
-    Serial.print(calVal_eepromAdress);
+    Serial.print(AddCalOff);
     Serial.println("? y/n");
 
 
@@ -214,30 +227,45 @@ void ReadLoadCells()
 
 
 void SetupBalances(){
+    int AddCalOff = 0;
+    int AddTara = 0;
+    long _TaraOff = 0;
+    float CalibrationValue;
   unsigned long stabilizingtime = 2000; // preciscion right after power-up can be improved by adding a few seconds of stabilizing time
   boolean _tare = false; //set this to false if you don't want tare to be performed in the next step
 
 
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         loadCells[i] = new HX711_ADC(HX_DAT[i], HX_SCK[i]); //  LoadCell(HX_DAT[i], HX_SCK[i]);
-        loadCells[i]->setSamplesInUse(2);
+        loadCells[i]->setSamplesInUse(32);
         loadCells[i]->setGain(128);
+
+        AddCalOff = (i + 8) * sizeof(float);
+        AddTara = (i + 4) * sizeof(float);
+        EEPROM.get(AddTara,_TaraOff);
+        loadCells[i]->setTareOffset(_TaraOff);
+        EEPROM.get(AddCalOff, CalibrationValue);
+        loadCells[i]->setCalFactor(CalibrationValue);
+
         loadCells[i]->begin();
 
         if (loadCells[i]->getTareTimeoutFlag()) {
             Serial.println("Timeout, check MCU>HX711 wiring and pin designations");
             while (1);
         }
-        loadCells[i]->setCalFactor(-656.51);
+//        loadCells[i]->setCalFactor(-700);
 
 
-        if(i == 0) loadCells[0]->setCalFactor(-656.51);
-        if( i == 1) loadCells[1]->setCalFactor(-761.31); 
-        ConvFactor[i] = loadCells[i]->getCalFactor();
+    //    if(i == 0) loadCells[0]->setCalFactor(-661.5);
+    //    if( i == 1) loadCells[1]->setCalFactor(-661.5); 
+    //    if( i == 2) loadCells[1]->setCalFactor(-1000); 
+    //    if( i == 3) loadCells[1]->setCalFactor(-1000); 
+
+        //ConvFactor[i] = loadCells[i]->getCalFactor();
 
         Weights[i] = 0;
         WeightInG[i] = 0;
     }
-    LoadTaras();
-    //LoadCalibrations();  
+ //   LoadTaras();
+ //   LoadCalibrations();  
 }

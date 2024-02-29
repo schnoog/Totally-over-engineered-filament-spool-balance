@@ -5,7 +5,7 @@
 //const char *topic = "3d/filamentbalance";
 
 int SubCNT = 0;
-int SendEach = 20;
+int SendEach = 3;
 
 void PublishWeights(){
     String topicWithWeight;

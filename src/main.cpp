@@ -49,8 +49,8 @@ void setup()
 #endif
   bme_setup();
 
-
-PaintDev();
+PaintWeights();
+//PaintDev();
 }
 
 void loopx(){
@@ -61,7 +61,7 @@ void loop()
 {
   wifi_loop();
   sCmd.readSerial();
-  bme_loop(); 
+  
 #ifdef USE_EPAPER
   PaintWeights();
 #endif
