@@ -1,6 +1,6 @@
 #pragma once
 #include <HX711_ADC.h>
-#include <EEPROM.h>
+
 
 
 #define HX1_SCK  48
@@ -39,6 +39,7 @@ float Weights[NUM_LOAD_CELLS];
 int WeightInG[NUM_LOAD_CELLS];
 float TaraOffSet[NUM_LOAD_CELLS];
 float ConvFactor[NUM_LOAD_CELLS];
+int EmptySpool[NUM_LOAD_CELLS];
 
 
 #define EEPROM_ADDR_WEIGHT1 0
@@ -54,13 +55,36 @@ float ConvFactor[NUM_LOAD_CELLS];
 #define EEPROM_ADDR_CALOFF3 10*sizeof(float)
 #define EEPROM_ADDR_CALOFF4 11*sizeof(float)
 
+#define EEPROM_ADDR_SPOOL1 14*sizeof(float)
+#define EEPROM_ADDR_SPOOL2 15*sizeof(float)
+#define EEPROM_ADDR_SPOOL3 16*sizeof(float)
+#define EEPROM_ADDR_SPOOL4 17*sizeof(float)
+
+
+
 //   AddWeight = (NUM - 1) * sizeof(float)
 //   AddTara = (NUM + 3) * sizeof(float)
 //   AddCalOff = (NUM + 7) * sizeof(float)
 
 
+void SaveSpoolTaras(){
+    int AddTara;
+    for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
+         AddTara = (i + 14) * sizeof(float);
+         EEPROM.put(AddTara,EmptySpool[i] );
+         EEPROM.commit();
+    }
+}
 
-
+void LoadSpoolTaras(){
+    int TaraX = 0;
+    int AddTara;
+    for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
+         AddTara = (i + 14) * sizeof(float);
+         EEPROM.get(AddTara,TaraX);
+         EmptySpool[i] = TaraX;
+    }
+}
 
 void TaraBalance( int BalanceNo){
     long _offset = 0;

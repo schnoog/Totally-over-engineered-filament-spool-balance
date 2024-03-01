@@ -6,13 +6,49 @@ float Temperature = 21.2;
 
 int PumpPin1 = 47;
 int PumpPin2 = 48;
+int PumpState = 0;
 
 float MinHum = 59.1;
 float MaxHum = 61.0;
 
+int AutoContol = 1;
+
 #include <BME280I2C.h>
 #include <Wire.h>
 
+#define EEPROM_ADDR_MINHUM 12*sizeof(float)
+#define EEPROM_ADDR_MAXHUM 13*sizeof(float)
+
+
+void load_HumSettings(){
+    float mtmp = 0;
+    EEPROM.get(EEPROM_ADDR_MINHUM,mtmp);
+    if(mtmp > 0.0){
+        MinHum = mtmp;
+    }
+    EEPROM.get(EEPROM_ADDR_MAXHUM,mtmp);
+    if(mtmp > 0.0){
+        MaxHum = mtmp;
+    }
+
+}
+
+void save_HumSettings(){
+    EEPROM.put(EEPROM_ADDR_MINHUM, MinHum);
+    EEPROM.commit();
+    EEPROM.put(EEPROM_ADDR_MAXHUM, MaxHum);
+    EEPROM.commit();
+}
+
+void set_MinHum(float NewMinHum){
+    MinHum = NewMinHum;
+    save_HumSettings();
+}
+
+void set_MaxHum(float NewMaxHum){
+    MaxHum = NewMaxHum;
+    save_HumSettings();
+}
 
 
 BME280I2C bme;    // Default : forced mode, standby time = 1000 ms
@@ -49,11 +85,13 @@ void bme_setupx(){
 void pumps_on(){
     digitalWrite(PumpPin1,HIGH);
     digitalWrite(PumpPin2,HIGH);
+    PumpState = 1;
 }
 
 void pumps_off(){
     digitalWrite(PumpPin1,LOW);
     digitalWrite(PumpPin2,LOW);
+    PumpState = 0;
 }
 
 
@@ -118,6 +156,8 @@ void bme_loop()
 {
    printBME280Data(&Serial);
    //delay(500);
+   if(AutoContol == 1){
     if(Humidity > MaxHum) pumps_on();
     if(Humidity < MinHum) pumps_off();
+   }
 }

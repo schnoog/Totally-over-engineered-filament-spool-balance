@@ -15,9 +15,10 @@
 WiFiClient espClient;
 PubSubClient client(espClient);
 #include <remotework.h>
-
 //WebServer server(80);
 AsyncWebServer server(80);
+#include <webfrontend.h>
+
 
 void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
@@ -66,9 +67,10 @@ void ota_setup(){
 //        server.send(200, "text/plain", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
 //    });
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/html; charset=utf-8", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
-  });
+  setup_web_routes();
+  //server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+  //  request->send(200, "text/html; charset=utf-8", "Hi! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");
+  //});
 
   server.on("/hi", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send(200, "text/html; charset=utf-8", "HUHU<hr>! This is ElegantOTA Demo. <br> find the updater here <a href='/update'>elegantota</a>  ");

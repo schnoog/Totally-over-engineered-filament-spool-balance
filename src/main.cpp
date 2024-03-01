@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 #include <Adafruit_NeoPixel.h>
 
 #define USE_EPAPER
@@ -22,8 +23,8 @@
 
 
 #include <neoled.h>
- #include <remotework.h>
-
+#include <remotework.h>
+#include <webfrontend.h>
 
 
 

@@ -1,3 +1,4 @@
+#pragma once
 #include <SerialCommand.h>
 #include <locadcell.h>
 #include <humidity.h>
