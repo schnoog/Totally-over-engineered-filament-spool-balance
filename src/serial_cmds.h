@@ -1,5 +1,6 @@
 #include <SerialCommand.h>
 #include <locadcell.h>
+#include <humidity.h>
 SerialCommand sCmd;  
 
 void Tare(){
@@ -38,6 +39,9 @@ void SerialCommandSetup(){
   sCmd.addCommand("cali",   Cali);         // Turns LED off
   sCmd.addCommand("loadCal",LoadCalibrations);
   sCmd.addCommand("loadTare",LoadTaras);
+  sCmd.addCommand("pumps_on",pumps_on);
+  sCmd.addCommand("pumps_off",pumps_off);
+
 //  sCmd.setDefaultHandler(unrecognized);      // Handler for command that isn't matched  (says "What?")
 //  Serial.println("Ready");
 }

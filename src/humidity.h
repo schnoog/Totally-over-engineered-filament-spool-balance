@@ -4,6 +4,11 @@
 float Humidity = 25.2;
 float Temperature = 21.2;
 
+int PumpPin1 = 47;
+int PumpPin2 = 48;
+
+float MinHum = 59.1;
+float MaxHum = 61.0;
 
 #include <BME280I2C.h>
 #include <Wire.h>
@@ -36,11 +41,26 @@ Serial.println(" I2C Devices found.");
 void bme_setupx(){
     //Wire.setPins(42,41);
      Wire.begin();
+    pinMode(PumpPin1,OUTPUT);
+    pinMode(PumpPin2,OUTPUT);
 }
+
+
+void pumps_on(){
+    digitalWrite(PumpPin1,HIGH);
+    digitalWrite(PumpPin2,HIGH);
+}
+
+void pumps_off(){
+    digitalWrite(PumpPin1,LOW);
+    digitalWrite(PumpPin2,LOW);
+}
+
 
 void bme_setup()
 {
-
+    pinMode(PumpPin1,OUTPUT);
+    pinMode(PumpPin2,OUTPUT);
 
 
 
@@ -98,4 +118,6 @@ void bme_loop()
 {
    printBME280Data(&Serial);
    //delay(500);
+    if(Humidity > MaxHum) pumps_on();
+    if(Humidity < MinHum) pumps_off();
 }
