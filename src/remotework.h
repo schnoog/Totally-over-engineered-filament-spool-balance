@@ -33,6 +33,33 @@ void PublishWeights(){
         }
         
 
+        // Construct the topic with "/emptyspool/" + current index i
+        char topicWithEmptySpool[50]; // Adjust the size as needed
+        snprintf(topicWithEmptySpool, sizeof(topicWithEmptySpool), "%s/emptyspool/%d", topic, i + 1);
+
+        // Convert the integer value to a string
+        char emptySpoolAsString[10]; // Adjust the size as needed
+        snprintf(emptySpoolAsString, sizeof(emptySpoolAsString), "%d", EmptySpool[i]);
+
+        // Concatenate the empty spool string with the topic
+        char messageEmptySpool[60]; // Adjust the size as needed
+        snprintf(messageEmptySpool, sizeof(messageEmptySpool), "%s: %s", topicWithEmptySpool, emptySpoolAsString);
+
+        // Publish using the constructed message
+        SubCNT++;
+        if(SubCNT == SendEach){
+            SubCNT = 0;
+            client.publish(topicWithEmptySpool, messageEmptySpool);
+        }
+
+
+    }
+
+
+
+
+
+
         char tempStr[10]; // Allocate space for the temperature string
         char humStr[10];  // Allocate space for the humidity string
         dtostrf(Temperature, 4, 1, tempStr); // Convert temperature float to string
@@ -49,7 +76,17 @@ void PublishWeights(){
         client.publish(newTopicT,tempStr);
         client.publish(newTopicH,humStr);
 
-    }
+
+
+
+
+
+
+
+
+
+
+
     Serial.println("");
 }
 

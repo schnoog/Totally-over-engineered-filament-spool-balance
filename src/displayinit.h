@@ -75,5 +75,5 @@ void ePaper_setup(){
   hspi.begin(13, 12, 14, 15); // remap hspi for EPD (swap pins)
   display.epd2.selectSPI(hspi, SPISettings(4000000, MSBFIRST, SPI_MODE0));
   display.init(115200);
-  delay(3000);
+  delay(1000);
 }

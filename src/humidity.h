@@ -122,6 +122,7 @@ void bme_setup()
      default:
        Serial.println("Found UNKNOWN sensor! Error!");
   }
+  load_HumSettings();
 }
 
 void printBME280Data

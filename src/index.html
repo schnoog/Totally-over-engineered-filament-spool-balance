@@ -36,6 +36,18 @@
       transition: all 200ms ease-in-out;
       background-color: #00AA00;
     }
+    .tabledataneg {
+      font-size: 24px;
+      position: relative;
+      padding-left: 5px;
+      padding-top: 5px;
+      height:   25px;
+      border-radius: 5px;
+      color: #000000;
+      line-height: 20px;
+      transition: all 200ms ease-in-out;
+      background-color: #db3e22;
+    }
     .tabledatabig {
       font-size: 72px;
       position: relative;
@@ -163,14 +175,14 @@
     
   </style>
 
-  <body style="background-color: #efefef">
-  <!-- <body style="background-color: #efefef" onload="process()"> -->
+    <body style="background-color: #efefef" onload="fetchDataAndUpdateHTML()">
     <header>
       <div class="navbar fixed-top">
           <div class="container">
             <div class="navtitle">ESPBalance - Filament weight and more</div>
             <a href="/update">OTA-UPDATER</a>
                     </div>
+            <button type="button" class="btn" onclick="DebugFetch();">Update</button>
       </div>
     </header>
   
@@ -196,7 +208,11 @@
             <tr>
               <td><div class="bodytext">Temperature</div></td>
               <td><div class="tabledata" id="temp">12.2°C</div></td>
-              <td><div class="bodytext">Pumps</div></td>
+              <td><div class="bodytext">Pumps</div>
+            
+                <div class="tabledata" id="autoindi" onclick="switchpumpmode(this);">Auto</div>            
+            
+            </td>
               <td>Lower Limit: <table><td><div class="tabledata" id="minhum" onclick="newminhum(this);">58.5</div></td><td>%</td></table></td>
             </tr>
             <tr>
@@ -229,6 +245,7 @@
             <button type="button" class = "btn" id = "cali1" onclick="calibrate(1,this);">Calibrate</button>            
             <button type="button" class = "btn" id = "m4p1" onclick="spool(1,'m4p750g',this);">Material 4 Print 0.75kg</button>
             <button type="button" class = "btn" id = "over1" onclick="spool(1,'overture1000g',this);">Overture 1kg</button>
+            <button type="button" class = "btn" id = "none1" onclick="spool(1,'none',this);">No spool</button>
         </td>
         <td>
             <div class="tabledatabig" id="weightsp2">222g</div>
@@ -237,6 +254,8 @@
             <button type="button" class = "btn" id = "cali2" onclick="calibrate(2,this);">Calibrate</button>            
             <button type="button" class = "btn" id = "m4p2" onclick="spool(2,'m4p750g',this);">Material 4 Print 0.75kg</button>
             <button type="button" class = "btn" id = "over2" onclick="spool(2,'overture1000g',this);">Overture 1kg</button>
+            <button type="button" class = "btn" id = "none2" onclick="spool(2,'none',this);">No spool</button>
+
         </td>
       </tr>
       <tr>
@@ -251,6 +270,8 @@
             <button type="button" class = "btn" id = "cali3" onclick="calibrate(3,this);">Calibrate</button>            
             <button type="button" class = "btn" id = "m4p3" onclick="spool(3,'m4p750g',this);">Material 4 Print 0.75kg</button>
             <button type="button" class = "btn" id = "over3" onclick="spool(3,'overture1000g',this);">Overture 1kg</button>
+            <button type="button" class = "btn" id = "none3" onclick="spool(3,'none',this);">No spool</button>
+
         </td>
         <td>
             <div class="tabledatabig" id="weightsp4">444g</div>
@@ -259,41 +280,45 @@
             <button type="button" class = "btn" id = "cali4" onclick="calibrate(4,this);">Calibrate</button>            
             <button type="button" class = "btn" id = "m4p4" onclick="spool(4,'m4p750g',this);">Material 4 Print 0.75kg</button>
             <button type="button" class = "btn" id = "over4" onclick="spool(4,'overture1000g',this);">Overture 1kg</button>
+            <button type="button" class = "btn" id = "none4" onclick="spool(4,'none',this);">No spool</button>
 
         </td>
       </tr>
       </table>
     </div>
     <br>
-    <div class="category">Sensor Controls</div>
-    <br>
-    <div class="bodytext">LED </div>
-    <button type="button" class = "btn" id = "btn0" onclick="ButtonPress0()">Toggle</button>
-    </div>
-    <br>
-    <div class="bodytext">Switch</div>
-    <button type="button" class = "btn" id = "btn1" onclick="ButtonPress1()">Toggle</button>
-    </div>
-    <br>
-    <br>
-    <div class="bodytext">Fan Speed Control (RPM: <span id="fanrpm"></span>)</div>
-    <br>
-    <input type="range" class="fanrpmslider" min="0" max="255" value = "0" width = "0%" oninput="UpdateSlider(this.value)"/>
-    <br>
-    <br>
+
   </main>
 
-  <footer div class="foot" id = "temp" >ESP32 Web Page Creation and Data Update Demo</div></footer>
+  <footer div class="foot" id = "temp" >ESP32 Filament Balance</div></footer>
   
   </body>
 
 <script>
     var BASEURL = "api"
-    function togglepumps(){
-        alert("Togglepumps");
+    function togglepumps(ele){
+        console.log("Togglepumps");
+        var state = ele.innerHTML;
+        if(state.trim().toUpperCase() === "ON"){
+
+            url = BASEURL + "/pumps/0";
+        }else{
+            url = BASEURL + "/pumps/1";
+        }
+        callurl(url);
 
     }
 
+    function switchpumpmode(ele){
+        var state = ele.innerHTML;
+        if(state.trim().toUpperCase() === "AUTO"){
+
+            url = BASEURL + "/mancontrol"
+        }else{
+            url = BASEURL + "/autocontrol"
+        }
+        callurl(url);
+    }
 
     function tare(BalanceNo,ele){
         url = BASEURL + "/tare/" + BalanceNo;
@@ -333,6 +358,7 @@
         var spooltara = document.getElementById("spoolsp" + spoolno).innerHTML;
         if(stype == "m4p750g") spooltara = 245;
         if(stype == "overture1000g") spooltara = 176;
+        if(stype == "none") spooltara = 0;
         document.getElementById("spoolsp" + spoolno).innerHTML = spooltara + "g";
         url = BASEURL + "/emptyspool/" + spoolno + "/" + spooltara;
         callurl(url);
@@ -341,19 +367,31 @@
 
 
     function callurl(url){
-makeRequest(url)
-  .then(data => {
-   alert('Data:', data);
+        console.log("Calling URL: " + url);
+    makePlainTextRequest(url)
+        .then(data => {
     // Do something with the received data
-  })
-  .catch(error => {
-    alert('Request failed:', error);
-  });
+    })
+    .catch(error => {
+        alert('Request failed:', error);
+    });
 
 
     }
 
-
+    async function makePlainTextRequest(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.text();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        return null;
+    }
+    }
 
 
     async function makeRequest(url) {
@@ -370,34 +408,98 @@ makeRequest(url)
     }
     }
 
+    function DebugFetch(){
+        var mystring = '{"LoadCells":[{"Weight":-0.530525684,"WeightInG":-1,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":220},{"Weight":0.007858722,"WeightInG":0,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0},{"Weight":482.4055176,"WeightInG":482,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0},{"Weight":-0.730652511,"WeightInG":-1,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0}],"Humidity":61.00683594,"Temperature":9.609999657,"MinHum":59.09999847,"MaxHum":60,"AutoControl":0,"PumpState":0}';
+        mystring = '{"LoadCells":[{"Weight":-4.815540791,"WeightInG":-5,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0},{"Weight":0.382457793,"WeightInG":0,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0},{"Weight":484.7264404,"WeightInG":485,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0},{"Weight":-0.929412365,"WeightInG":-1,"TaraOffSet":0,"ConvFactor":0,"EmptySpool":0}],"Humidity":52.49609375,"Temperature":11.40999985,"MinHum":48,"MaxHum":61,"AutoControl":1,"PumpState":0}';
+        fetchDataAndUpdateHTML(mystring);
+    }
 
 
+    function fetchDataAndUpdateHTML(responseString = null) {
+    if (responseString) {
+        updateHTMLWithResponse(responseString);
+    } else {
+        fetch('/api/data')
+        .then(response => response.json())
+        .then(data => {
+            const jsonString = JSON.stringify(data);
+            updateHTMLWithResponse(jsonString);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
+    }
+    }
 
-function fetchDataAndUpdateHTML() {
-  fetch('/api/data')
-    .then(response => response.json())
-    .then(data => {
-      // Update WeightInG values
-      for (let i = 0; i < data.LoadCells.length; i++) {
-        const weightInG = data.LoadCells[i].WeightInG;
-        const weightSpId = 'weightsp' + (i + 1);
-        document.getElementById(weightSpId).innerHTML = weightInG + "g";
+    function updateHTMLWithResponse(responseString) {
+    const data = JSON.parse(responseString);
+
+    // Update WeightInG values
+    for (let i = 0; i < data.LoadCells.length; i++) {
         const emptyspool = data.LoadCells[i].EmptySpool;
         const spid = "spoolsp" + (i+1);
         document.getElementById(spid).innerHTML = emptyspool + "g";
 
-      }
+        var weightInG = data.LoadCells[i].WeightInG;
+        const weightSpId = 'weightsp' + (i + 1);
+        if(emptyspool > 0 ){
+            var calcSpoolWeight = weightInG - emptyspool;
+            document.getElementById(weightSpId).innerHTML = calcSpoolWeight + "g (Tared)";
 
-      // Update Humidity and Temperature values
-      const humidity = data.Humidity.toFixed(1);
-      const temperature = data.Temperature.toFixed(1);
-      document.getElementById('hum').innerHTML = humidity;
-      document.getElementById('temp').innerHTML = temperature;
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
-}    
+            
+        }else{
+            document.getElementById(weightSpId).innerHTML = weightInG + "g";
+        }
+
+    }
+
+    // Update Humidity and Temperature values
+    const humidity = data.Humidity.toFixed(1);
+    const temperature = data.Temperature.toFixed(1);
+    var PumpState = parseInt(data.PumpState);
+    var minhum = data.MinHum.toFixed(1);
+    var maxhum = data.MaxHum.toFixed(1);
+    var AI = parseInt(data.AutoControl);
+    var lbl = "";
+    var minhele = document.getElementById("minhum");
+    minhele.innerHTML = minhum;
+
+    var maxhele = document.getElementById("maxhum");
+    maxhele.innerHTML = maxhum;
+
+    var humele = document.getElementById('hum');
+    var mclass = "tabledata";
+    if(humidity > maxhum) mclass = "tabledataneg";
+    humele.classList.remove("tabledata");
+    humele.classList.remove("tabledataneg");
+    humele.classList.add(mclass);
+
+    var pumpStateElement = document.getElementById("pumpstate");
+    document.getElementById('hum').innerHTML = humidity + "% RH";
+    document.getElementById('temp').innerHTML = temperature + "°C";
+    if(PumpState === "1"){
+        lbl = "ON";
+        pumpStateElement.classList.remove("tabledataneg");
+        pumpStateElement.classList.add("tabledata");
+
+    }else{
+        lbl = "OFF";
+        pumpStateElement.classList.remove("tabledata");
+        pumpStateElement.classList.add("tabledataneg");
+
+    }
+    
+    var autoindi = document.getElementById("autoindi");
+    if(AI === 1){
+        autoindi.innerHTML = "AUTO";
+    }else{
+        autoindi.innerHTML = "MANUAL";
+    }
+
+
+    }
+
+
 
 
 

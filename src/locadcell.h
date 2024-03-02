@@ -21,7 +21,7 @@ const int HX_SCK[] = {6,4,15,17};  // Example pins, adjust as per your setup
 
 //const int NUM_LOAD_CELLS = 1;
 const int NUM_LOAD_CELLS = 4;
-
+int MSAMPLES = 8;
 
 
 HX711_ADC *loadCells[NUM_LOAD_CELLS];
@@ -261,7 +261,8 @@ void SetupBalances(){
 
     for (int i = 0; i < NUM_LOAD_CELLS; ++i) {
         loadCells[i] = new HX711_ADC(HX_DAT[i], HX_SCK[i]); //  LoadCell(HX_DAT[i], HX_SCK[i]);
-        loadCells[i]->setSamplesInUse(32);
+        loadCells[i]->setSamplesInUse(MSAMPLES);
+        
         loadCells[i]->setGain(128);
 
         AddCalOff = (i + 8) * sizeof(float);
@@ -292,4 +293,5 @@ void SetupBalances(){
     }
  //   LoadTaras();
  //   LoadCalibrations();  
+    LoadSpoolTaras();
 }
