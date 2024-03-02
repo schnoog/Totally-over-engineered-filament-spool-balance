@@ -324,15 +324,20 @@ const char PAGE_MAIN[] PROGMEM = R"=====(
     }
 
     function tare(BalanceNo,ele){
-        url = BASEURL + "/tare/" + BalanceNo;
-        callurl(url);
-
+    var confirmation = confirm("Please ensure that the balance " + BalanceNo + " has no wight on it");
+      if (confirmation) {
+          url = BASEURL + "/tare/" + BalanceNo;
+          callurl(url);
+      }
     }
 
-    function calibrate(BalanceNo,ele){
-        url = BASEURL + "/calibrate/" + BalanceNo;
-        callurl(url);
+    function calibrate(BalanceNo, ele) {
+        var confirmation = confirm("Please ensure that the balance " + BalanceNo + " is tared and place a 1000g weight on it");
 
+        if (confirmation) {
+            var url = BASEURL + "/calibrate/" + BalanceNo;
+            callurl(url);
+        }
     }
 
     function newminhum(ele){

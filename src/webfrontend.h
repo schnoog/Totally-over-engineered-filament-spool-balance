@@ -126,7 +126,7 @@ void setup_web_routes(){
     server.on("^\\/api\\/calibrate\\/([0-9]+)$", HTTP_GET, [] (AsyncWebServerRequest *request) {
         String newmax = request->pathArg(0);
         int balance = newmax.toInt();
-        CalibrateBalance(balance);
+        RemoteCalibrateBalance(balance);
         request->send(200, "text/plain", "-calibrate-");
     });
 

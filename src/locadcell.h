@@ -21,7 +21,7 @@ const int HX_SCK[] = {6,4,15,17};  // Example pins, adjust as per your setup
 
 //const int NUM_LOAD_CELLS = 1;
 const int NUM_LOAD_CELLS = 4;
-int MSAMPLES = 8;
+int MSAMPLES = 2;
 
 
 HX711_ADC *loadCells[NUM_LOAD_CELLS];
@@ -65,6 +65,44 @@ int EmptySpool[NUM_LOAD_CELLS];
 //   AddWeight = (NUM - 1) * sizeof(float)
 //   AddTara = (NUM + 3) * sizeof(float)
 //   AddCalOff = (NUM + 7) * sizeof(float)
+
+
+
+
+
+void RemoteCalibrateBalance(int BalanceNo){
+    float CalWeight = 1000.00;
+    int Chan = BalanceNo - 1;
+    int AddCalOff = (Chan + 8) * sizeof(float);
+    loadCells[Chan]->setCalFactor(1.0); 
+    while (!loadCells[Chan]->update());
+    float known_mass = CalWeight;
+    loadCells[Chan]->refreshDataSet(); //refresh the dataset to be sure that the known mass is measured correct
+    float newCalibrationValue = loadCells[Chan]->getNewCalibration(known_mass); //get the new calibration value
+    EEPROM.put(AddCalOff, newCalibrationValue);
+    EEPROM.commit();
+    EEPROM.get(AddCalOff, newCalibrationValue);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void SaveSpoolTaras(){
