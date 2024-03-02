@@ -43,6 +43,8 @@ But that means the filament box is open for a minute or so, has air exchange wit
 
 ## Hardware
 
+The 3D printed parts I used can be sound in the hardware/stls directory.
+
 Beside of the 3D printed part (and a few screws and wires) I used the following things:
 - 16 685ZZ beatings
 - 8 x  90mm pieces of M5 thread
@@ -57,6 +59,14 @@ Beside of the 3D printed part (and a few screws and wires) I used the following 
   - 1 x 400mm 2040
   - Corner connectors and t-nuts
 
+Tools I used
+- electric screwdriver
+- M3 screw tap
+- allen keys
+
+![A single spool holder](hardware/stls/SingleHolder.jpg)
+
+![On the rail](hardware/stls/OnAlu.jpg)
 
 
 ### And that's the frontend, ugly, isn't it?
