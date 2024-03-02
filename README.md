@@ -9,6 +9,7 @@
   - EEPROM saved control range (Lower and Upper level)
   - Switching of 2 digital GPIOs (Switching ON if > upper level, OFF is < lower level) I use for pumping air through a dehumidifier
 - WiFi connection to my home network
+- OTA (Over the air) update of the firmware
 - Publishing the data to my MQTT server
 - Waveshare 4.2Inch e-Paper module to show the data directly on the filament box
 - Easy web frontend to 
@@ -37,7 +38,26 @@ That's working and I could be happy.
 Yeah, could.
 
 But....
-I do often switch between filaments, which mean I have to not only unload the filament from the 3D printer, but also pull it back into the box, enter the new filament through the PFTE liner, place the spool on the balance, record the weight of the empty spool (I only have 2 manufacturers material, so that's not difficult), enters it into my system.
+I do often switch between filaments, which mean I have to not only unload the filament from the 3D printer, but also pull it back into the box, enter the new filament through the PFTE liner, place the spool on the balance, record the weight of the empty spool (I only have 2 manufacturers material, so that's not difficult), enter it into my system.
+But that means the filament box is open for a minute or so, has air exchange with the room, humidity increases...
 
-Doesn't sound like a lot of fun, does it?
+## Hardware
 
+Beside of the 3D printed part (and a few screws and wires) I used the following things:
+- 16 685ZZ beatings
+- 8 x  90mm pieces of M5 thread
+- 8 x  70mm alu pipe ID:5mm , 1mm wall thickness
+- 4 12.7x12.7x80mm 3kg load cells with HX711 boards
+- A Lolin S3 ESP32 S3 dev board
+- A Waveshare 4.2inch e-Paper-module (I bought some years ago)
+- A BME280 sensor breakout board
+- Aluminium extrusion
+  - 4 x 120mm 2020
+  - 1 x 330mm 2020 
+  - 1 x 400mm 2040
+  - Corner connectors and t-nuts
+
+
+
+### And that's the frontend, ugly, isn't it?
+![FrontEnd](FrontendSML.jpg)
