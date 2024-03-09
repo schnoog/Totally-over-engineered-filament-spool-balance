@@ -1,6 +1,14 @@
 #pragma once
 
 
+#include <esp32-hal.h>
+#include <esp32-hal-ledc.h>
+
+int pwmValue = 0;
+const int freq = 23000;
+const int ledChannel = 0;
+const int resolution = 8;
+
 float Humidity = 25.2;
 float Temperature = 21.2;
 
@@ -54,51 +62,34 @@ void set_MaxHum(float NewMaxHum){
 BME280I2C bme;    // Default : forced mode, standby time = 1000 ms
                   // Oversampling = pressure ×1, temperature ×1, humidity ×1, filter off,
 
-void scan(){
-Serial.println("\n Scanning I2C Addresses");
-uint8_t cnt=0;
-for(uint8_t i=0;i<0x7F;i++){
-  Wire.beginTransmission(i);
-  uint8_t ec=Wire.endTransmission(true); // if device exists on bus, it will aCK
-  if(ec==0){ // Device ACK'd
-    if(i<16)Serial.print('0');
-    Serial.print(i,HEX);
-    cnt++;
-  }
-  else Serial.print(".."); // no one answered
-  Serial.print(' ');
-  if ((i&0x0f)==0x0f)Serial.println();
-  }
-Serial.print("Scan Completed, ");
-Serial.print(cnt);
-Serial.println(" I2C Devices found.");
-}
 
-void bme_setupx(){
-    //Wire.setPins(42,41);
-     Wire.begin();
-    pinMode(PumpPin1,OUTPUT);
-    pinMode(PumpPin2,OUTPUT);
-}
-
+int CurrPWM = 0;
 
 void pumps_on(){
-    digitalWrite(PumpPin1,HIGH);
-    digitalWrite(PumpPin2,HIGH);
+  if(PumpState == 0){
+//    digitalWrite(PumpPin1,HIGH);  
+    ledcWrite(ledChannel, 200);
+//    digitalWrite(PumpPin2,HIGH);
     PumpState = 1;
+    }
 }
 
 void pumps_off(){
-    digitalWrite(PumpPin1,LOW);
-    digitalWrite(PumpPin2,LOW);
+  if(PumpState == 1){
+//    digitalWrite(PumpPin1,LOW);
+    ledcWrite(ledChannel, 0);
+//    digitalWrite(PumpPin2,LOW);
     PumpState = 0;
+    }
 }
 
 
 void bme_setup()
 {
-    pinMode(PumpPin1,OUTPUT);
-    pinMode(PumpPin2,OUTPUT);
+//    pinMode(PumpPin1,OUTPUT);
+//    pinMode(PumpPin2,OUTPUT);
+    ledcSetup(ledChannel, freq, resolution);
+    ledcAttachPin(PumpPin1, ledChannel);
 
 
 

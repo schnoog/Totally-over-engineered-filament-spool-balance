@@ -11,6 +11,8 @@
 
 #include <credentials.h>
 
+String hostname = "Filastation";
+
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -116,6 +118,7 @@ void mqtt_setup(){
 
 void wifi_setup(){
     WiFi.mode(WIFI_STA); //Optional
+    WiFi.setHostname(hostname.c_str()); //define hostname
     WiFi.begin(ssid, password);
     Serial.println("\nConnecting");
 
