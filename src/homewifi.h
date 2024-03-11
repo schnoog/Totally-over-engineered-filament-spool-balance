@@ -21,6 +21,9 @@ PubSubClient client(espClient);
 AsyncWebServer server(80);
 #include <webfrontend.h>
 
+unsigned long previousMillis = 0;
+unsigned long interval = 30000;
+
 
 void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
@@ -118,7 +121,7 @@ void mqtt_setup(){
 
 void wifi_setup(){
     WiFi.mode(WIFI_STA); //Optional
-    WiFi.setHostname(hostname.c_str()); //define hostname
+    WiFi.setHostname(hostname.c_str()); //define hostnameb
     WiFi.begin(ssid, password);
     Serial.println("\nConnecting");
 
@@ -136,6 +139,23 @@ void wifi_setup(){
 }
 
 void wifi_loop(){
+
+  int wifi_retry = 0;
+  while(WiFi.status() != WL_CONNECTED && wifi_retry < 5 ) {
+      wifi_retry++;
+      Serial.println("WiFi not connected. Try to reconnect");
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(ssid,password);
+      delay(100);
+  }
+  if(wifi_retry >= 5) {
+      Serial.println("\nReboot");
+      ESP.restart();
+  }
+
+
     ota_loop();
     client.loop();
 }
