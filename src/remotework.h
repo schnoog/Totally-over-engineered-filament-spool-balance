@@ -62,8 +62,10 @@ void PublishWeights(){
 
         char tempStr[10]; // Allocate space for the temperature string
         char humStr[10];  // Allocate space for the humidity string
+        char pumpStr[5];
         dtostrf(Temperature, 4, 1, tempStr); // Convert temperature float to string
         dtostrf(Humidity, 4, 1, humStr);     // Convert humidity float to string
+        itoa(PumpState, pumpStr, 10);
         int topicLength = strlen(topic);
         int appendLength = strlen("/temperature");
         char *newTopicT = new char[topicLength + appendLength + 1];
@@ -77,6 +79,11 @@ void PublishWeights(){
         client.publish(newTopicH,humStr);
 
 
+        appendLength = strlen("/pump");
+        char *newTopicP = new char[topicLength + appendLength + 1];
+        strcpy(newTopicP, topic);
+        strcat(newTopicP, "/pump");        
+        client.publish(newTopicP,humStr);
 
 
 
