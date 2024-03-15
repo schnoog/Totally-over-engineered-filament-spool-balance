@@ -5,7 +5,7 @@
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
-
+#include <ESP32Ping.h>
 #include <PubSubClient.h>
 
 
@@ -24,6 +24,17 @@ AsyncWebServer server(80);
 unsigned long previousMillis = 0;
 unsigned long interval = 30000;
 
+
+IPAddress local_IP(192, 168, 178, 82);
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 178, 1);
+
+IPAddress subnet(255, 255, 255, 0);
+IPAddress primaryDNS(192, 168, 178, 1);   //optional
+IPAddress secondaryDNS(8, 8, 4, 4); //optional
+IPAddress PingIP (192, 168, 178, 1); // The remote ip to ping
+unsigned long pingInterval = 60000;
+unsigned long lastPing = 0;
 
 void callbackX(char *topic, byte *payload, unsigned int length) {
     Serial.print("Message arrived in topic: ");
@@ -119,15 +130,24 @@ void mqtt_setup(){
     client.subscribe(subtopic);
 }
 
+int ConnFail = 0;
 void wifi_setup(){
+   if (!WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS)) {
+    Serial.println("STA Failed to configure");
+  }
+   
     WiFi.mode(WIFI_STA); //Optional
-    WiFi.setHostname(hostname.c_str()); //define hostnameb
+    WiFi.setHostname(hostname.c_str()); //define hostnamen
     WiFi.begin(ssid, password);
     Serial.println("\nConnecting");
 
     while(WiFi.status() != WL_CONNECTED){
         Serial.print(".");
         delay(100);
+        ConnFail++;
+        if(ConnFail > 1000){
+          ESP.restart();
+        }
     }
 
     Serial.println("\nConnected to the WiFi network");
@@ -138,7 +158,40 @@ void wifi_setup(){
 
 }
 
+int pingfail = 0;
+
+void pingcheck(){
+    bool ret = Ping.ping(PingIP);
+    if(!ret){
+      pingfail++;
+      pingInterval  = 10000;
+      if(pingfail > 5)
+      ESP.restart();
+    }else{
+      pingInterval  = 60000;
+    }
+}
+
+
 void wifi_loop(){
+  
+
+
+  unsigned long currentMillis = millis();
+
+  // Check if it's time to execute the function
+  if (currentMillis - lastPing >= pingInterval) {
+    // Save the current time as the last execution time
+    lastPing = currentMillis;
+    
+    // Call your function here
+    pingcheck();
+  }
+
+
+
+
+
 
   int wifi_retry = 0;
   while(WiFi.status() != WL_CONNECTED && wifi_retry < 5 ) {
