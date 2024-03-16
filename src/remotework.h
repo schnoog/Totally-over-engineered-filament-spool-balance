@@ -83,7 +83,7 @@ void PublishWeights(){
         char *newTopicP = new char[topicLength + appendLength + 1];
         strcpy(newTopicP, topic);
         strcat(newTopicP, "/pump");        
-        client.publish(newTopicP,humStr);
+        client.publish(newTopicP,pumpStr);
 
 
 
