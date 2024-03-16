@@ -23,7 +23,7 @@ void PublishWeights(){
         
         // Concatenate the weight string with the topic
         char message[60]; // Adjust the size as needed
-        snprintf(message, sizeof(message), "%s: %s", topicWithWeight, weightAsString);
+        snprintf(message, sizeof(message), "%s", weightAsString);
         
         // Publish using the constructed message
         SubCNT++;
@@ -43,7 +43,7 @@ void PublishWeights(){
 
         // Concatenate the empty spool string with the topic
         char messageEmptySpool[60]; // Adjust the size as needed
-        snprintf(messageEmptySpool, sizeof(messageEmptySpool), "%s: %s", topicWithEmptySpool, emptySpoolAsString);
+        snprintf(messageEmptySpool, sizeof(messageEmptySpool), "%s", emptySpoolAsString);
 
         // Publish using the constructed message
         SubCNT++;
@@ -63,9 +63,11 @@ void PublishWeights(){
         char tempStr[10]; // Allocate space for the temperature string
         char humStr[10];  // Allocate space for the humidity string
         char pumpStr[5];
+        char autoStr[5];
         dtostrf(Temperature, 4, 1, tempStr); // Convert temperature float to string
         dtostrf(Humidity, 4, 1, humStr);     // Convert humidity float to string
         itoa(PumpState, pumpStr, 10);
+        itoa(AutoContol,autoStr,10);
         int topicLength = strlen(topic);
         int appendLength = strlen("/temperature");
         char *newTopicT = new char[topicLength + appendLength + 1];
@@ -85,9 +87,27 @@ void PublishWeights(){
         strcat(newTopicP, "/pump");        
         client.publish(newTopicP,pumpStr);
 
+        appendLength = strlen("/auto");
+        char *newTopicA = new char[topicLength + appendLength + 1];
+        strcpy(newTopicA, topic);
+        strcat(newTopicA, "/auto");        
+        client.publish(newTopicA,autoStr);
 
+        // Publish MinHumidity and MaxHumidity
+        char minHumStr[10];
+        char maxHumStr[10];
+        dtostrf(MinHum, 4, 1, minHumStr);
+        dtostrf(MaxHum, 4, 1, maxHumStr);
 
+        char *newTopicMinHum = new char[topicLength + strlen("/MinHumidity") + 1];
+        strcpy(newTopicMinHum, topic);
+        strcat(newTopicMinHum, "/MinHumidity");
+        client.publish(newTopicMinHum, minHumStr);
 
+        char *newTopicMaxHum = new char[topicLength + strlen("/MaxHumidity") + 1];
+        strcpy(newTopicMaxHum, topic);
+        strcat(newTopicMaxHum, "/MaxHumidity");
+        client.publish(newTopicMaxHum, maxHumStr);
 
 
 
