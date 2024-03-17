@@ -143,8 +143,51 @@ void printBME280Data
    //delay(1000);
 }
 
+unsigned long previousTimeHighHumidity = 0; // Variable to store the previous time humidity was above threshold
+unsigned long previousTimeLowHumidity = 0;  // Variable to store the previous time humidity was below threshold
+float aboveThresholdHumidity = 0;           // Variable to store the humidity when it crossed the threshold
+float belowThresholdHumidity = 0;           // Variable to store the humidity when it crossed below the threshold
 
-void bme_loop()
+void bme_loop() {
+    printBME280Data(&Serial);
+    //delay(500);
+    
+    if (AutoContol == 1) {
+        // Check if humidity is above the maximum threshold
+        if (Humidity > MaxHum) {
+            if (aboveThresholdHumidity == 0) { // If humidity just crossed the threshold
+                aboveThresholdHumidity = Humidity;
+                previousTimeHighHumidity = millis(); // Start the timer
+            } else {
+                // If humidity has been above the threshold for more than 60 seconds
+                if (millis() - previousTimeHighHumidity >= 60000) {
+                    pumps_on();
+                }
+            }
+        } else {
+            aboveThresholdHumidity = 0; // Reset the aboveThresholdHumidity if humidity falls below the threshold
+        }
+        
+        // Check if humidity is below the minimum threshold
+        if (Humidity < MinHum) {
+            if (belowThresholdHumidity == 0) { // If humidity just crossed below the threshold
+                belowThresholdHumidity = Humidity;
+                previousTimeLowHumidity = millis(); // Start the timer
+            } else {
+                // If humidity has been below the threshold for more than 30 seconds
+                if (millis() - previousTimeLowHumidity >= 30000) {
+                    pumps_off();
+                }
+            }
+        } else {
+            belowThresholdHumidity = 0; // Reset the belowThresholdHumidity if humidity rises above the threshold
+        }
+    }
+}
+
+
+
+void bme_loopX()
 {
    printBME280Data(&Serial);
    //delay(500);

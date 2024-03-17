@@ -58,6 +58,7 @@ void loopx(){
   //scan();
 }
 
+int subcount = 5;
 void loop()
 {
   wifi_loop();
@@ -69,12 +70,17 @@ void loop()
   const int serialPrintInterval = 1500; //increase value to slow down serial print activity
   // get smoothed value from the dataset:
   ReadLoadCells();
+
     if (millis() > t + serialPrintInterval) {
       t = millis();
         bme_loop(); 
+        subcount++;
+        if(subcount > 9){
+                PublishWeights();
+                subcount = 0;
+        }
 
-      
-      PublishWeights();
+
     }
   
 
