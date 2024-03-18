@@ -71,3 +71,14 @@ Tools I used
 
 ### And that's the frontend, ugly, isn't it?
 ![FrontEnd](FrontendSML.jpg)
+
+### More about the humidity
+I attached a 5V PWM laptop fan so that GPIO47 is used to switch the fan on and off. 
+With said fan I pump air from my filament chamber through a TPU hose into an air drying box which then flows back through another hose into my chamber.
+
+As soon as the humidity in the chamber exceeds to upper control limit for more than 60 seconds the fan is started until the humidity remains for 30 seconds below the lower control limit. 
+
+Yes, I could implement a PID... but at the moment I'm quite happy.  The data is sent in a 15 seconds interval to my mqtt broker.  
+
+![ChartExplained](ChartExplained.jpg)
+
